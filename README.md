@@ -1,46 +1,128 @@
-# Digital Communications Simulation  
-A modular Python simulation of a digital communication system featuring **BPSK modulation**, **AWGN channel modeling**, **pulse shaping**, **matched filtering**, **eye diagrams**, **constellation plots**, and **BER analysis**.
+# 📡 Digital Communications Simulation
 
-This project demonstrates the core DSP concepts used in modern telecom physical layers (optical, wireless, high-speed serial).  
-It is designed to be clean, educational, and easily extendable.
+A modular Python simulation of a digital communication system featuring:
+
+- **BPSK modulation & demodulation**
+- **AWGN channel modeling**
+- **Raised cosine pulse shaping**
+- **Matched filtering**
+- **Eye diagrams**
+- **Constellation plots**
+- **BER vs SNR analysis**
+- **Full transmitter → channel → receiver chain simulation**
+
+This project demonstrates the core DSP techniques used in modern telecom PHY systems  
+(wireless, optical, and high-speed digital links).
 
 ---
 
-## 🚀 Features
+# 🚀 Features
 
-### ✔ BPSK Modulation & Demodulation
-- Binary ↔ symbol mapping (+1 / –1)
-- Hard-decision detector
+## ✔ BPSK Modulation & Demodulation
+- Symbol mapping: {0 → +1, 1 → –1}  
+- Hard-decision slicing at the receiver  
+- Clean modular implementation (`dsp/modulation.py`, `dsp/receiver.py`)
 
-### ✔ AWGN Channel
-- Standard \( P_{noise} = P_{signal} / SNR \) implementation  
-- Adjustable SNR in dB
+---
 
-### ✔ BER vs SNR Curve (Symbol-Rate Receiver)
-- Produces the correct theoretical BER curve for BPSK in AWGN  
-- Matches textbook reference performance  
+## ✔ AWGN Channel
+Standard AWGN model:
+
+\[
+y = x + n,\quad n \sim \mathcal{N}(0, \sigma^2)
+\]
+
+with noise variance computed from SNR(dB).
+
+File: `dsp/channel.py`
+
+---
+
+## ✔ BER vs SNR (Symbol-Rate Receiver)
+A classic BPSK-in-AWGN BER experiment.
+
+- Matches theoretical curve shape  
+- Validates modulation, noise model, and demodulation flow  
 - Script: `main_ber.py`
 
-### ✔ Raised Cosine Pulse Shaping
-- Oversampling (SPS)
-- Transmit filter (RC)
-- Receive matched filter (RC)
+Plot (generated after running the script):
 
-### ✔ Eye Diagram
-- Visualizes ISI and filter performance  
-- Script: `main_eye.py`  
-- Produces textbook‑clean eye openings
-
-### ✔ Constellation Diagram
-- Scatter plot of sampled BPSK symbols
-- Helps visualize noise and impairments  
-- Script: `main_constellation.py`
+![BER Curve](images/ber_curve.png)
 
 ---
 
-## 📁 Project Structure
+## ✔ Eye Diagram
+Shows intersymbol interference (ISI) and raised-cosine pulse shaping behavior.
+
+Script: `main_eye.py`
+
+![Eye Diagram](images/eye_diagram.png)
+
+---
+
+## ✔ Constellation Diagram
+Scatter plot of demodulated BPSK samples.
+
+Script: `main_constellation.py`
+
+![Constellation](images/constellation.png)
+
+---
+
+# 🌐 Full Pulse-Shaped BPSK BER (Transmitter → Channel → Receiver)
+
+This test measures BER for the **complete** digital communications chain:
+
+### Transmitter
+- PRBS bit source  
+- BPSK mapper  
+- Oversampling  
+- Raised cosine pulse shaping  
+
+### Channel
+- AWGN injection at user-selected SNR(dB)
+
+### Receiver
+- Matched filtering (time-reversed RC)  
+- **Timing phase search (0…SPS-1) for robust symbol sampling**  
+- Hard-decision BPSK demodulation  
+
+Script: `main_ber_fullchain.py`
+
+---
+
+## 🧪 Why this experiment matters
+
+This test demonstrates *real-world* impairments:
+
+- ISI introduced by pulse shaping  
+- Noise **after** filtering  
+- Sampling phase misalignment  
+- True end-to-end BER measurement  
+
+This is far more realistic than the symbol-rate BER test.
+
+---
+
+## 📉 Example Output (after timing fix)
 
 ```
+SNR =  0 dB -> BER ≈ 2.8e-03
+SNR =  2 dB -> BER ≈ 1.6e-04
+SNR =  4 dB -> BER = 0
+SNR =  6+ dB -> BER = 0
+```
+
+This confirms correct pulse shaping, matched filtering, and detection alignment.
+
+![Full-Chain BER](/images/fullchain_ber.png)
+
+
+---
+
+# 📁 Project Structure
+
+```markdown
 digital-comms-sim/
 ├── dsp/
 │   ├── prbs.py
@@ -55,72 +137,58 @@ digital-comms-sim/
 ├── main_constellation.py
 ├── main_ber_fullchain.py
 │
+├── images/              # Saved plots go here
 └── README.md
 ```
 
 ---
 
-## 📈 Example Outputs
+# 🛠 Running the Simulations
 
-### **BPSK BER Curve**
-![BER Curve](images/ber_curve.png)
+## Install dependencies
 
-### **Eye Diagram**
-![Eye Diagram](images/eye_diagram.png)
-
-### **Constellation Diagram**
-![Constellation](images/constellation.png)
-
----
-
-## 🛠 How to Run
-
-### Install dependencies
-```
+```bash
 pip install numpy matplotlib
 ```
 
-### Run demo scripts
-```
+## Run individual experiments
+
+```bash
 python main_ber.py
 python main_eye.py
 python main_constellation.py
-```
-
-### Optional (advanced)
-```
 python main_ber_fullchain.py
 ```
 
-> Note: `main_ber_fullchain.py` is a work‑in‑progress experiment adding pulse shaping + matched filtering + brute‑force timing recovery.
-
 ---
 
-## 🎯 Learning Outcomes
+# 🎯 Learning Outcomes
 
-This project demonstrates:
+Working with this project helps build understanding of:
 
 - Digital modulation (BPSK)
-- Channel impairments (AWGN)
-- Pulse shaping & oversampling
+- Oversampling and raised-cosine pulse shaping
 - Matched filtering theory
-- Visualization tools used in telecom engineering
-- BER analysis & Monte‑Carlo simulation
-- Clean Python module design
+- Noise modeling
+- Eye and constellation visualization
+- BER Monte-Carlo estimation
+- Timing recovery concepts
+- Clean modular DSP code design
 
 ---
 
-## 📌 Future Work
+# 🚧 Future Extensions
 
-- QPSK & 16‑QAM
-- Root‑raised cosine filters
-- Carrier frequency offset simulation
-- Clock recovery (Gardner, M&M)
-- Soft‑decision demodulation
-- Viterbi decoding
+- QPSK, 16-QAM modulation
+- Root-raised cosine (RRC) filters
+- Carrier frequency offset (CFO)
+- Gardner or Mueller & Müller timing recovery
+- Soft-decision demodulation
+- Viterbi or LDPC decoding
 
 ---
 
-## 🧑‍💻 Author  
-Maxence Jules  
+# 🧑‍💻 Author
+
+**Maxence Jules**  
 Montreal, QC

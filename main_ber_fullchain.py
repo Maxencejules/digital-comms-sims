@@ -31,32 +31,31 @@ def simulate_ber_full_chain(
     bits_tx = generate_bits(n_bits)
     symbols = bpsk_modulate(bits_tx, amplitude=1.0)
 
-    tx_rc = raised_cosine(num_taps=num_taps, sps=sps, beta=beta)
-    up = upsample(symbols, sps)
-    tx_waveform = apply_filter(up, tx_rc)
+    tx_rc = raised_cosine(num_taps=num_taps, sps=sps, beta=beta)  # :contentReference[oaicite:1]{index=1}
+    up = upsample(symbols, sps)                                   # :contentReference[oaicite:2]{index=2}
+    tx_waveform = apply_filter(up, tx_rc)                         # Tx pulse shaping
 
     # --- Channel ---
-    rx_waveform = awgn(tx_waveform, snr_db)
+    rx_waveform = awgn(tx_waveform, snr_db)                       # :contentReference[oaicite:3]{index=3}
 
     # --- Receiver: matched filter ---
-    rx_rc = tx_rc[::-1]  # matched filter
+    rx_rc = tx_rc[::-1]  # matched filter (time-reversed)
     mf_output = apply_filter(rx_waveform, rx_rc)
-
-    # Base delay from tx + rx filters ('same' conv)
-    base_delay = (num_taps - 1)
 
     best_ber = 1.0
 
-    # Try every sampling phase inside one symbol period
+    # Important: due to 'same' convolution in both filters, the overall
+    # chain is effectively zero-delay w.r.t. the upsample grid.
+    # So we only sweep the phase 0..sps-1 without any extra base delay.
     for phase in range(sps):
-        delay = base_delay + phase
+        delay = phase
 
         bits_rx = sample_bpsk_from_waveform(
             mf_output=mf_output,
             sps=sps,
             delay=delay,
             n_symbols=n_bits,
-        )
+        )  # :contentReference[oaicite:4]{index=4}
 
         n_valid = min(len(bits_tx), len(bits_rx))
         if n_valid == 0:
@@ -96,6 +95,7 @@ def main():
     plt.ylabel("Bit Error Rate (BER)")
     plt.title("BPSK BER vs SNR (Full Pulse-Shaped Chain)")
     plt.tight_layout()
+    plt.savefig("images/fullchain_ber.png", dpi=150)
     plt.show()
 
 
