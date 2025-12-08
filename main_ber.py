@@ -38,6 +38,7 @@ def main():
     plt.ylabel("Bit Error Rate (BER)")
     plt.title("BPSK BER vs SNR (AWGN Channel)")
     plt.tight_layout()
+    plt.savefig("images/ber_curve.png", dpi=150)
     plt.show()
 
 

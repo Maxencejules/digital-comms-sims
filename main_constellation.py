@@ -47,6 +47,7 @@ def main():
     plt.ylabel("Quadrature (Q)")
     plt.grid(True)
     plt.tight_layout()
+    plt.savefig("images/constellation.png", dpi=150)
     plt.show()
 
 

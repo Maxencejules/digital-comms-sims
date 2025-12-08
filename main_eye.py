@@ -64,6 +64,7 @@ def main():
     plt.ylabel("Amplitude")
     plt.grid(True)
     plt.tight_layout()
+    plt.savefig("images/eye_diagram.png", dpi=150)
     plt.show()
 
 
