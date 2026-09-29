@@ -1,26 +1,23 @@
+"""Real baseband AWGN with an explicit energy-per-bit convention."""
 import numpy as np
 
-def awgn(signal: np.ndarray, snr_db: float) -> np.ndarray:
+
+def noise_variance(ebn0_db: float, bit_energy: float = 1.0) -> float:
+    """Return N0/2 = Eb/(2 * 10**(Eb/N0_dB/10)) per real sample.
+
+    Sample time is normalized to one. For BPSK amplitude A and a pulse h,
+    nominal Eb = A**2 * sum(h**2), independent of samples per symbol.
+    This is not waveform-average sample-power SNR.
     """
-    Additive White Gaussian Noise channel.
+    if not np.isfinite(ebn0_db) or not np.isfinite(bit_energy) or bit_energy <= 0:
+        raise ValueError("Eb/N0 must be finite and bit energy positive and finite")
+    return bit_energy / (2 * 10 ** (ebn0_db / 10))
 
-    snr_db is the desired SNR in dB:
-        SNR = signal_power / noise_power
 
-    This function computes the signal power, derives the
-    required noise power for the requested SNR, and adds
-    Gaussian noise with that variance.
-    """
-    # Signal power (mean squared value)
-    sig_power = np.mean(np.abs(signal) ** 2)
-
-    # Desired SNR (linear)
-    snr_linear = 10 ** (snr_db / 10.0)
-
-    # Noise power and standard deviation
-    noise_power = sig_power / snr_linear
-    noise_std = np.sqrt(noise_power)
-
-    # AWGN
-    noise = np.random.normal(0.0, noise_std, size=signal.shape)
-    return signal + noise
+def awgn(signal: np.ndarray, ebn0_db: float, *, rng: np.random.Generator,
+         bit_energy: float = 1.0) -> np.ndarray:
+    """Add independent real Gaussian samples; caller owns the random stream."""
+    signal = np.asarray(signal)
+    if signal.ndim != 1 or not np.isrealobj(signal) or not np.all(np.isfinite(signal)):
+        raise ValueError("Expected a finite one-dimensional real baseband signal")
+    return signal + rng.normal(0, np.sqrt(noise_variance(ebn0_db, bit_energy)), signal.shape)

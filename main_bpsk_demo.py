@@ -1,5 +1,8 @@
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+from pathlib import Path
 from dsp.prbs import generate_bits
 from dsp.modulation import bpsk_modulate
 
@@ -22,7 +25,9 @@ def main():
     plt.ylabel("Amplitude")
     plt.grid(True)
     plt.tight_layout()
-    plt.show()
+    Path("images").mkdir(exist_ok=True)
+    plt.savefig("images/bpsk_waveform.png", dpi=160)
+    plt.close()
 
 
 if __name__ == "__main__":
