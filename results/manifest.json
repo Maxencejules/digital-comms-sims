@@ -1,0 +1,28 @@
+{
+  "payload_bits_per_point": 200000,
+  "base_seed": 2026,
+  "point_seed": "base_seed + point index",
+  "ebn0_db": [
+    -2,
+    0,
+    2,
+    4,
+    6,
+    8,
+    10
+  ],
+  "sps": 8,
+  "rrc_beta": 0.35,
+  "rrc_num_taps": 81,
+  "preamble_bits": 1024,
+  "frame_payload_bits": 50000,
+  "timing_offsets": "random integer 0..7 per frame",
+  "preamble_seed": 271828,
+  "acquisition_threshold": 0.45,
+  "bit_energy": 1,
+  "real_noise_variance": "1 / (2 * 10**(EbN0_dB/10))",
+  "confidence": 0.95,
+  "python": "3.12.10",
+  "numpy": "2.5.3",
+  "matplotlib": "3.11.2"
+}

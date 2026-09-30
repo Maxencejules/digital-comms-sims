@@ -1,0 +1,24 @@
+name: Simulation checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      MPLBACKEND: Agg
+      MPLCONFIGDIR: ${{ github.workspace }}/.mplconfig
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -v
+      - run: python run_demo.py --bits 20000 --seed 2026 --output-dir build/demo
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seeded-simulation-results
+          path: build/demo/
